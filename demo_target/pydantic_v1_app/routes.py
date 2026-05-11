@@ -1,0 +1,164 @@
+"""FastAPI routes — 6 control endpoints + 4 trap endpoints."""
+
+from decimal import Decimal
+from typing import List
+
+from fastapi import APIRouter, HTTPException
+
+from .models import (
+    BulkReviewRequest,
+    BulkReviewResponse,
+    Order,
+    OrderCalculate,
+    OrderResult,
+    ReviewItem,
+    Role,
+    TagList,
+    TagsResponse,
+    UserCreate,
+    UserSimple,
+    UserUpdate,
+    UserWithRole,
+)
+
+router = APIRouter()
+
+# ── In-memory store ───────────────────────────────────────────────────────────
+
+_INITIAL_USERS = {
+    1: {"id": 1, "name": "Alice", "email": "alice@example.com", "role": "ADMIN"},
+    2: {"id": 2, "name": "Bob", "email": "bob@example.com", "role": "USER"},
+    3: {"id": 3, "name": "Carol", "email": "carol@example.com", "role": "VIEWER"},
+}
+_users: dict[int, dict] = {k: dict(v) for k, v in _INITIAL_USERS.items()}
+_next_user_id = 4
+
+_orders: dict[int, list] = {
+    1: [{"id": 1, "user_id": 1, "item": "Widget A", "amount": Decimal("9.99")}],
+    2: [{"id": 2, "user_id": 2, "item": "Widget B", "amount": Decimal("19.99")}],
+}
+
+_product_tags: dict[int, list] = {
+    1: ["electronics", "sale"],
+    2: ["books", "bestseller", "fiction"],
+}
+
+
+# ── CONTROL endpoints ─────────────────────────────────────────────────────────
+
+@router.get("/health")
+def health_check():
+    """Health check — always returns 200."""
+    return {"status": "ok", "version": "1.0.0-pydantic-v1"}
+
+
+@router.get("/users", response_model=List[UserSimple])
+def list_users():
+    """List all users (simple model — no traps)."""
+    return [UserSimple(**u) for u in _users.values()]
+
+
+@router.post("/admin/reset", include_in_schema=False)
+def reset_state():
+    """Reset in-memory state to initial fixture — for deterministic capture/replay."""
+    global _users, _next_user_id
+    _users = {k: dict(v) for k, v in _INITIAL_USERS.items()}
+    _next_user_id = 4
+    return {"reset": True}
+
+
+@router.post("/users", response_model=UserSimple, status_code=201)
+def create_user(body: UserCreate):
+    """Create a new user."""
+    global _next_user_id
+    user = {"id": _next_user_id, "name": body.name, "email": body.email, "role": "USER"}
+    _users[_next_user_id] = user
+    _next_user_id += 1
+    return UserSimple(**user)
+
+
+@router.put("/users/{user_id}", response_model=UserSimple)
+def update_user(user_id: int, body: UserUpdate):
+    """Update an existing user."""
+    if user_id not in _users:
+        raise HTTPException(status_code=404, detail="user not found")
+    user = _users[user_id]
+    if body.name is not None:
+        user["name"] = body.name
+    if body.email is not None:
+        user["email"] = body.email
+    return UserSimple(**user)
+
+
+@router.delete("/users/{user_id}")
+def delete_user(user_id: int):
+    """Delete a user."""
+    if user_id not in _users:
+        raise HTTPException(status_code=404, detail="user not found")
+    del _users[user_id]
+    return {"deleted": user_id}
+
+
+@router.get("/users/{user_id}/orders", response_model=List[Order])
+def get_user_orders(user_id: int):
+    """Get orders for a user (control — Decimal trap is in /orders/calculate)."""
+    if user_id not in _users:
+        raise HTTPException(status_code=404, detail="user not found")
+    orders = _orders.get(user_id, [])
+    return [Order(**o) for o in orders]
+
+
+# ── TRAP endpoints ────────────────────────────────────────────────────────────
+
+@router.get("/users/{user_id}", response_model=UserWithRole)
+def get_user(user_id: int):
+    """TRAP 1 — Enum serialization.
+
+    Pydantic v1 with use_enum_values=True: role → "ADMIN" (string).
+    Naive v2 migration without use_enum_values: role → {"name":"ADMIN","value":"ADMIN"}.
+    """
+    if user_id not in _users:
+        raise HTTPException(status_code=404, detail="user not found")
+    return UserWithRole(**_users[user_id])
+
+
+@router.post("/orders/calculate", response_model=OrderResult)
+def calculate_order(body: OrderCalculate):
+    """TRAP 2 — Decimal serialization.
+
+    Pydantic v1 with json_encoders={Decimal: float}: total → 12.5 (float).
+    Naive v2 migration without field_serializer: total → "12.50" (string).
+    """
+    total = body.unit_price * body.quantity
+    return OrderResult(
+        item_id=body.item_id,
+        quantity=body.quantity,
+        unit_price=body.unit_price,
+        total=total,
+    )
+
+
+@router.post("/products/tags", response_model=TagsResponse)
+def set_product_tags(product_id: int, body: TagList):
+    """TRAP 3 — __root__ model.
+
+    Pydantic v1 __root__ model accepts ["tag1", "tag2"] directly.
+    Naive v2 migration without RootModel: import error or shape mismatch.
+    """
+    tags = list(body)
+    _product_tags[product_id] = tags
+    return TagsResponse(product_id=product_id, tags=tags, count=len(tags))
+
+
+@router.post("/reviews/bulk", response_model=BulkReviewResponse)
+def bulk_reviews(body: BulkReviewRequest):
+    """TRAP 4 — each_item validator.
+
+    Pydantic v1: @validator(each_item=True) catches invalid ratings per item.
+    Naive v2 migration: validator silently no-ops; out-of-range ratings pass through.
+    """
+    return BulkReviewResponse(
+        accepted=len(body.reviews),
+        rejected=0,
+        reviews=body.reviews,
+    )

@@ -1,0 +1,7 @@
+# Separate venv for Pydantic v1 demo target
+# python -m venv .venv-demo-v1
+# .venv-demo-v1/Scripts/pip install -r demo_target/requirements-v1.txt
+pydantic==1.10.21
+fastapi==0.95.2
+uvicorn[standard]==0.21.0
+httpx>=0.28.1

@@ -1,0 +1,57 @@
+# =============================================================================
+# Twin Validator — Tolerance Rules
+# =============================================================================
+# Each rule documents an INTENTIONAL behavior difference between the legacy
+# and migrated code that the diff engine should not flag as a regression.
+#
+# CRITICAL: Every rule MUST have a `rationale` field. The audit report
+# includes them verbatim. If you cannot articulate the why in one sentence,
+# the rule does not belong here — fix the code instead.
+#
+# Rule kinds supported by the diff engine:
+#   - regex_ignore        : ignore exact value, match by pattern only
+#   - regex_match         : require value to match pattern (any specific)
+#   - any_uuid            : value must be a valid UUID, content irrelevant
+#   - any_iso_datetime    : value must parse as ISO 8601, content irrelevant
+#   - ignore_order        : list elements compared as a set, not a sequence
+#   - numeric_tolerance   : numeric equality within `epsilon`
+#   - enum_value_remap    : map old value → new value before comparing
+#   - field_optional      : missing field on either side is acceptable
+#   - schema_relaxed      : extra fields on the new side are acceptable
+# =============================================================================
+
+rules:
+  - path: "$.version"
+    kind: regex_ignore
+    pattern: ".*"
+    rationale: "API version string intentionally changes from v1 to v2; not a behavioral regression"
+
+# -----------------------------------------------------------------------------
+# Example rules (commented out — uncomment and adapt as needed during your run)
+# -----------------------------------------------------------------------------
+
+# rules:
+#   - path: "$.created_at"
+#     kind: any_iso_datetime
+#     rationale: "Timestamps are runtime-generated; not affected by migration"
+#
+#   - path: "$.id"
+#     kind: any_uuid
+#     rationale: "Resource identity, not content; always non-deterministic"
+#
+#   - path: "$.tags"
+#     kind: ignore_order
+#     rationale: "Tag set is semantically unordered; v2 sorts deterministically while v1 used insertion order"
+#
+#   - path: "$.detail[*].msg"
+#     kind: regex_match
+#     pattern: "^.+$"
+#     rationale: "Error message text format changed in Pydantic v2; our API contract documents codes, not strings, so message text is informational"
+#
+#   - path: "$.user.role"
+#     kind: enum_value_remap
+#     map:
+#       "ADMIN": "admin"
+#       "USER": "user"
+#       "GUEST": "guest"
+#     rationale: "v2 default Enum serialization changed; we accept the lowercase form because downstream consumers were already case-insensitive"
