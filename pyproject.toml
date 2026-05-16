@@ -3,20 +3,25 @@ name = "bobs-twin"
 version = "0.1.0"
 requires-python = ">=3.11,<3.13"
 
+# All runtime dependencies pinned with == to prevent silent upgrades
+# during the 48h hackathon window. Regenerate requirements.lock.txt
+# (see README) after touching this list.
 dependencies = [
-    "fastmcp>=2.0,<3.0",
-    "vcrpy>=6.0.0",
-    "deepdiff>=8.0.0",
-    "pydantic>=2.6.0",
-    "radon>=6.0.0",
-    "vulture>=2.11",
-    "streamlit>=1.30.0",
-    "fastapi>=0.110.0",
-    "httpx>=0.28.1",
-    "pyyaml>=6.0.0",
-    "reportlab>=4.0.0",
-    "jsonpath-ng>=1.6.0",
-    "uvicorn[standard]>=0.27.0",
+    "fastmcp==2.4.0",
+    "vcrpy==8.1.0",
+    "deepdiff==8.0.1",
+    "pydantic==2.11.0",
+    "radon==6.0.1",
+    "vulture==2.11",
+    "streamlit==1.30.0",
+    "fastapi==0.110.0",
+    "httpx==0.28.1",
+    "pyyaml==6.0.1",
+    "reportlab==4.0.9",
+    "weasyprint==68.1",
+    "markdown2==2.5.5",
+    "jsonpath-ng==1.6.1",
+    "uvicorn[standard]==0.27.1",
 ]
 
 [project.optional-dependencies]
@@ -25,6 +30,16 @@ dev = [
     "pytest-cov==4.1.0",
     "ruff==0.2.0",
 ]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+# Only twin_mcp is an installable package. Everything else is either a
+# standalone Streamlit app (dashboard/), demo target apps (demo_target/),
+# sample data (samples/, audit_trail/, golden_cassettes/), or scripts.
+include = ["twin_mcp*"]
 
 [tool.uv]
 package = false
