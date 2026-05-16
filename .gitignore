@@ -1,3 +1,4 @@
+# Python
 __pycache__/
 *.py[cod]
 *.pyo
@@ -7,13 +8,29 @@ __pycache__/
 *.egg-info/
 dist/
 build/
-*.tmp
+
+# Virtual environments
 .venv*/
 .env
+
+# Logs
 *.log
+
+# OS
 .DS_Store
 Thumbs.db
+
+# Testing
 .pytest_cache/
 .ruff_cache/
 *.cover
 htmlcov/
+
+# Temporary files
+*.tmp
+
+# Demo script (temporary, not part of core project)
+demo_traps.py
+
+# Note: audit_trail/ and golden_cassettes/ are intentionally NOT ignored
+# They contain demo evidence and sample data for the hackathon submission

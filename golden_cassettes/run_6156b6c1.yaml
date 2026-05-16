@@ -5,7 +5,39 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, br, zstd
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      Host:
+      - localhost:8001
+      User-Agent:
+      - python-httpx/0.28.1
+    method: POST
+    uri: http://localhost:8001/admin/reset
+  response:
+    body:
+      string: '{"reset":true}'
+    headers:
+      content-length:
+      - '14'
+      content-type:
+      - application/json
+      date:
+      - Sat, 16 May 2026 19:20:38 GMT
+      server:
+      - uvicorn
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       Host:
@@ -23,7 +55,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 12:59:43 GMT
+      - Sat, 16 May 2026 19:20:41 GMT
       server:
       - uvicorn
     status:
@@ -35,7 +67,7 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       Host:
@@ -53,7 +85,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 12:59:45 GMT
+      - Sat, 16 May 2026 19:20:43 GMT
       server:
       - uvicorn
     status:
@@ -65,7 +97,7 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       Host:
@@ -83,7 +115,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 12:59:46 GMT
+      - Sat, 16 May 2026 19:20:44 GMT
       server:
       - uvicorn
     status:
@@ -95,7 +127,7 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       Host:
@@ -106,15 +138,14 @@ interactions:
     uri: http://localhost:8001/users
   response:
     body:
-      string: '[{"id":1,"name":"Alice Updated","email":"alice@example.com"},{"id":2,"name":"Bob","email":"bob2@example.com"},{"id":3,"name":"Carol
-        Updated","email":"carol2@example.com"},{"id":4,"name":"Dave","email":"dave@example.com"},{"id":5,"name":"Eve","email":"eve@example.com"},{"id":6,"name":"Frank","email":"frank@example.com"},{"id":10,"name":"Dave","email":"dave@example.com"},{"id":11,"name":"Eve","email":"eve@example.com"},{"id":12,"name":"Frank","email":"frank@example.com"}]'
+      string: '[{"id":1,"name":"Alice","email":"alice@example.com"},{"id":2,"name":"Bob","email":"bob@example.com"},{"id":3,"name":"Carol","email":"carol@example.com"}]'
     headers:
       content-length:
-      - '474'
+      - '153'
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 12:59:48 GMT
+      - Sat, 16 May 2026 19:20:46 GMT
       server:
       - uvicorn
     status:
@@ -126,7 +157,7 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       Host:
@@ -137,15 +168,14 @@ interactions:
     uri: http://localhost:8001/users
   response:
     body:
-      string: '[{"id":1,"name":"Alice Updated","email":"alice@example.com"},{"id":2,"name":"Bob","email":"bob2@example.com"},{"id":3,"name":"Carol
-        Updated","email":"carol2@example.com"},{"id":4,"name":"Dave","email":"dave@example.com"},{"id":5,"name":"Eve","email":"eve@example.com"},{"id":6,"name":"Frank","email":"frank@example.com"},{"id":10,"name":"Dave","email":"dave@example.com"},{"id":11,"name":"Eve","email":"eve@example.com"},{"id":12,"name":"Frank","email":"frank@example.com"}]'
+      string: '[{"id":1,"name":"Alice","email":"alice@example.com"},{"id":2,"name":"Bob","email":"bob@example.com"},{"id":3,"name":"Carol","email":"carol@example.com"}]'
     headers:
       content-length:
-      - '474'
+      - '153'
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 12:59:51 GMT
+      - Sat, 16 May 2026 19:20:48 GMT
       server:
       - uvicorn
     status:
@@ -157,7 +187,7 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       Host:
@@ -168,15 +198,14 @@ interactions:
     uri: http://localhost:8001/users
   response:
     body:
-      string: '[{"id":1,"name":"Alice Updated","email":"alice@example.com"},{"id":2,"name":"Bob","email":"bob2@example.com"},{"id":3,"name":"Carol
-        Updated","email":"carol2@example.com"},{"id":4,"name":"Dave","email":"dave@example.com"},{"id":5,"name":"Eve","email":"eve@example.com"},{"id":6,"name":"Frank","email":"frank@example.com"},{"id":10,"name":"Dave","email":"dave@example.com"},{"id":11,"name":"Eve","email":"eve@example.com"},{"id":12,"name":"Frank","email":"frank@example.com"}]'
+      string: '[{"id":1,"name":"Alice","email":"alice@example.com"},{"id":2,"name":"Bob","email":"bob@example.com"},{"id":3,"name":"Carol","email":"carol@example.com"}]'
     headers:
       content-length:
-      - '474'
+      - '153'
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 12:59:53 GMT
+      - Sat, 16 May 2026 19:20:50 GMT
       server:
       - uvicorn
     status:
@@ -188,7 +217,7 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       Content-Length:
@@ -203,14 +232,14 @@ interactions:
     uri: http://localhost:8001/users
   response:
     body:
-      string: '{"id":16,"name":"Dave","email":"dave@example.com"}'
+      string: '{"id":4,"name":"Dave","email":"dave@example.com"}'
     headers:
       content-length:
-      - '50'
+      - '49'
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 12:59:55 GMT
+      - Sat, 16 May 2026 19:20:52 GMT
       server:
       - uvicorn
     status:
@@ -222,7 +251,7 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       Content-Length:
@@ -237,14 +266,14 @@ interactions:
     uri: http://localhost:8001/users
   response:
     body:
-      string: '{"id":17,"name":"Eve","email":"eve@example.com"}'
+      string: '{"id":5,"name":"Eve","email":"eve@example.com"}'
     headers:
       content-length:
-      - '48'
+      - '47'
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 12:59:57 GMT
+      - Sat, 16 May 2026 19:20:55 GMT
       server:
       - uvicorn
     status:
@@ -256,7 +285,7 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       Content-Length:
@@ -271,14 +300,14 @@ interactions:
     uri: http://localhost:8001/users
   response:
     body:
-      string: '{"id":18,"name":"Frank","email":"frank@example.com"}'
+      string: '{"id":6,"name":"Frank","email":"frank@example.com"}'
     headers:
       content-length:
-      - '52'
+      - '51'
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 12:59:59 GMT
+      - Sat, 16 May 2026 19:20:57 GMT
       server:
       - uvicorn
     status:
@@ -290,7 +319,7 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       Content-Length:
@@ -312,7 +341,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:00:01 GMT
+      - Sat, 16 May 2026 19:20:59 GMT
       server:
       - uvicorn
     status:
@@ -324,7 +353,7 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       Content-Length:
@@ -346,7 +375,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:00:04 GMT
+      - Sat, 16 May 2026 19:21:01 GMT
       server:
       - uvicorn
     status:
@@ -358,7 +387,7 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       Content-Length:
@@ -380,7 +409,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:00:06 GMT
+      - Sat, 16 May 2026 19:21:03 GMT
       server:
       - uvicorn
     status:
@@ -392,7 +421,7 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       Host:
@@ -410,7 +439,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:00:07 GMT
+      - Sat, 16 May 2026 19:21:04 GMT
       server:
       - uvicorn
     status:
@@ -422,7 +451,7 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       Host:
@@ -440,7 +469,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:00:09 GMT
+      - Sat, 16 May 2026 19:21:06 GMT
       server:
       - uvicorn
     status:
@@ -452,7 +481,7 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       Host:
@@ -470,7 +499,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:00:11 GMT
+      - Sat, 16 May 2026 19:21:09 GMT
       server:
       - uvicorn
     status:
@@ -482,7 +511,7 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       Content-Length:
@@ -497,14 +526,14 @@ interactions:
     uri: http://localhost:8001/users
   response:
     body:
-      string: '{"id":19,"name":"Temp1","email":"t1@example.com"}'
+      string: '{"id":7,"name":"Temp1","email":"t1@example.com"}'
     headers:
       content-length:
-      - '49'
+      - '48'
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:00:13 GMT
+      - Sat, 16 May 2026 19:21:11 GMT
       server:
       - uvicorn
     status:
@@ -516,7 +545,7 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       Content-Length:
@@ -531,14 +560,14 @@ interactions:
     uri: http://localhost:8001/users
   response:
     body:
-      string: '{"id":20,"name":"Temp2","email":"t2@example.com"}'
+      string: '{"id":8,"name":"Temp2","email":"t2@example.com"}'
     headers:
       content-length:
-      - '49'
+      - '48'
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:00:15 GMT
+      - Sat, 16 May 2026 19:21:13 GMT
       server:
       - uvicorn
     status:
@@ -550,7 +579,7 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       Content-Length:
@@ -565,14 +594,14 @@ interactions:
     uri: http://localhost:8001/users
   response:
     body:
-      string: '{"id":21,"name":"Temp3","email":"t3@example.com"}'
+      string: '{"id":9,"name":"Temp3","email":"t3@example.com"}'
     headers:
       content-length:
-      - '49'
+      - '48'
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:00:18 GMT
+      - Sat, 16 May 2026 19:21:15 GMT
       server:
       - uvicorn
     status:
@@ -584,7 +613,7 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       Host:
@@ -592,17 +621,17 @@ interactions:
       User-Agent:
       - python-httpx/0.28.1
     method: DELETE
-    uri: http://localhost:8001/users/19
+    uri: http://localhost:8001/users/7
   response:
     body:
-      string: '{"deleted":19}'
+      string: '{"deleted":7}'
     headers:
       content-length:
-      - '14'
+      - '13'
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:00:20 GMT
+      - Sat, 16 May 2026 19:21:17 GMT
       server:
       - uvicorn
     status:
@@ -614,7 +643,7 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       Host:
@@ -622,17 +651,17 @@ interactions:
       User-Agent:
       - python-httpx/0.28.1
     method: DELETE
-    uri: http://localhost:8001/users/20
+    uri: http://localhost:8001/users/8
   response:
     body:
-      string: '{"deleted":20}'
+      string: '{"deleted":8}'
     headers:
       content-length:
-      - '14'
+      - '13'
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:00:22 GMT
+      - Sat, 16 May 2026 19:21:19 GMT
       server:
       - uvicorn
     status:
@@ -644,7 +673,7 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       Host:
@@ -652,17 +681,17 @@ interactions:
       User-Agent:
       - python-httpx/0.28.1
     method: DELETE
-    uri: http://localhost:8001/users/21
+    uri: http://localhost:8001/users/9
   response:
     body:
-      string: '{"deleted":21}'
+      string: '{"deleted":9}'
     headers:
       content-length:
-      - '14'
+      - '13'
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:00:24 GMT
+      - Sat, 16 May 2026 19:21:22 GMT
       server:
       - uvicorn
     status:
@@ -674,7 +703,7 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       Host:
@@ -692,7 +721,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:00:26 GMT
+      - Sat, 16 May 2026 19:21:23 GMT
       server:
       - uvicorn
     status:
@@ -704,7 +733,7 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       Host:
@@ -722,7 +751,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:00:27 GMT
+      - Sat, 16 May 2026 19:21:25 GMT
       server:
       - uvicorn
     status:
@@ -734,7 +763,7 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       Host:
@@ -752,7 +781,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:00:29 GMT
+      - Sat, 16 May 2026 19:21:27 GMT
       server:
       - uvicorn
     status:
@@ -764,7 +793,7 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       Content-Length:
@@ -786,7 +815,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:00:31 GMT
+      - Sat, 16 May 2026 19:21:29 GMT
       server:
       - uvicorn
     status:
@@ -798,7 +827,7 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       Content-Length:
@@ -820,7 +849,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:00:34 GMT
+      - Sat, 16 May 2026 19:21:31 GMT
       server:
       - uvicorn
     status:
@@ -832,7 +861,7 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       Content-Length:
@@ -854,7 +883,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:00:36 GMT
+      - Sat, 16 May 2026 19:21:33 GMT
       server:
       - uvicorn
     status:
@@ -866,7 +895,7 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       Content-Length:
@@ -888,7 +917,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:00:38 GMT
+      - Sat, 16 May 2026 19:21:36 GMT
       server:
       - uvicorn
     status:
@@ -900,7 +929,7 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       Content-Length:
@@ -922,7 +951,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:00:40 GMT
+      - Sat, 16 May 2026 19:21:38 GMT
       server:
       - uvicorn
     status:
@@ -934,7 +963,7 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       Content-Length:
@@ -956,7 +985,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:00:42 GMT
+      - Sat, 16 May 2026 19:21:40 GMT
       server:
       - uvicorn
     status:
@@ -969,7 +998,7 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       Content-Length:
@@ -992,7 +1021,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:00:44 GMT
+      - Sat, 16 May 2026 19:21:42 GMT
       server:
       - uvicorn
     status:
@@ -1004,7 +1033,7 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       Content-Length:
@@ -1026,7 +1055,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:00:46 GMT
+      - Sat, 16 May 2026 19:21:44 GMT
       server:
       - uvicorn
     status:
@@ -1039,7 +1068,7 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       Content-Length:
@@ -1062,10 +1091,115 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:00:49 GMT
+      - Sat, 16 May 2026 19:21:45 GMT
       server:
       - uvicorn
     status:
       code: 200
       message: OK
+- request:
+    body: '{"reviews":[{"product_id":1,"rating":99,"comment":"high out of range"}]}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br, zstd
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '72'
+      Content-Type:
+      - application/json
+      Host:
+      - localhost:8001
+      User-Agent:
+      - python-httpx/0.28.1
+    method: POST
+    uri: http://localhost:8001/reviews/bulk
+  response:
+    body:
+      string: '{"detail":[{"loc":["body","reviews",0,"rating"],"msg":"rating must
+        be between 1 and 5, got 99","type":"value_error"}]}'
+    headers:
+      content-length:
+      - '118'
+      content-type:
+      - application/json
+      date:
+      - Sat, 16 May 2026 19:21:47 GMT
+      server:
+      - uvicorn
+    status:
+      code: 422
+      message: Unprocessable Content
+- request:
+    body: '{"reviews":[{"product_id":2,"rating":-5,"comment":"negative rating"}]}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br, zstd
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '70'
+      Content-Type:
+      - application/json
+      Host:
+      - localhost:8001
+      User-Agent:
+      - python-httpx/0.28.1
+    method: POST
+    uri: http://localhost:8001/reviews/bulk
+  response:
+    body:
+      string: '{"detail":[{"loc":["body","reviews",0,"rating"],"msg":"rating must
+        be between 1 and 5, got -5","type":"value_error"}]}'
+    headers:
+      content-length:
+      - '118'
+      content-type:
+      - application/json
+      date:
+      - Sat, 16 May 2026 19:21:50 GMT
+      server:
+      - uvicorn
+    status:
+      code: 422
+      message: Unprocessable Content
+- request:
+    body: '{"reviews":[{"product_id":3,"rating":0,"comment":"zero rating"}]}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br, zstd
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '65'
+      Content-Type:
+      - application/json
+      Host:
+      - localhost:8001
+      User-Agent:
+      - python-httpx/0.28.1
+    method: POST
+    uri: http://localhost:8001/reviews/bulk
+  response:
+    body:
+      string: '{"detail":[{"loc":["body","reviews",0,"rating"],"msg":"rating must
+        be between 1 and 5, got 0","type":"value_error"}]}'
+    headers:
+      content-length:
+      - '117'
+      content-type:
+      - application/json
+      date:
+      - Sat, 16 May 2026 19:21:52 GMT
+      server:
+      - uvicorn
+    status:
+      code: 422
+      message: Unprocessable Content
 version: 1

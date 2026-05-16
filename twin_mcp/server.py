@@ -7,7 +7,7 @@ from twin_mcp import capture, drift, replay, reports
 mcp = FastMCP("twin-mcp")
 
 
-@mcp.tool
+@mcp.tool()
 def capture_baseline(target_dir: str, scenarios: list[str]) -> dict:
     """Capture HTTP baseline interactions from scenario scripts into a cassette.
 
@@ -24,7 +24,7 @@ def capture_baseline(target_dir: str, scenarios: list[str]) -> dict:
         return {"ok": False, "errors": [str(exc)]}
 
 
-@mcp.tool
+@mcp.tool()
 def replay_and_diff(
     cassette_path: str,
     target_dir: str,
@@ -49,7 +49,7 @@ def replay_and_diff(
         return {"ok": False, "errors": [str(exc)]}
 
 
-@mcp.tool
+@mcp.tool()
 def compute_drift_metrics(target_dir: str, baseline_ref: str = "HEAD~1") -> dict:
     """Compute code quality drift metrics between current state and a git baseline.
 
@@ -66,7 +66,7 @@ def compute_drift_metrics(target_dir: str, baseline_ref: str = "HEAD~1") -> dict
         return {"ok": False, "errors": [str(exc)]}
 
 
-@mcp.tool
+@mcp.tool()
 def generate_audit_report(run_id: str, format: str = "pdf") -> dict:
     """Generate a signed audit report for a completed migration run.
 
@@ -84,4 +84,4 @@ def generate_audit_report(run_id: str, format: str = "pdf") -> dict:
 
 
 if __name__ == "__main__":
-    mcp.run()
+    mcp.run(transport="stdio")

@@ -274,33 +274,15 @@ if cassette_path:
         use_v2 = st.toggle("v2 naive migration", value=False, key="target_toggle",
                            help="OFF = v1 original (port 8001)  |  ON = v2 naive (port 8002)")
     target_url = "http://localhost:8002" if use_v2 else "http://localhost:8001"
-    label = "v2 naive" if use_v2 else "v1 original"
 
     prev_key = "prev_toggle_state"
     if st.session_state.get(prev_key) != use_v2:
         st.session_state[prev_key] = use_v2
-        try:
-            result = _run_replay(cassette_path, target_url)
-            if result.get("ok"):
-                score_val = result.get("equivalence_score", 0.0)
-                color = _score_color(score_val)
-                score_fmt = f"{score_val:.3f}".rstrip('0').rstrip('.')
-                st.markdown(
-                    f'<div class="replay-running">✓ {label} — score: '
-                    f'<strong style="color:{color}">{score_fmt}</strong> '
-                    f'({result["passed"]}/{result["total"]} passed)</div>',
-                    unsafe_allow_html=True,
-                )
-            else:
-                st.markdown(
-                    f'<div class="replay-error">Replay failed: {result.get("errors", "unknown error")}</div>',
-                    unsafe_allow_html=True,
-                )
-        except Exception as exc:
-            st.markdown(
-                f'<div class="replay-error">Error: {exc}</div>',
-                unsafe_allow_html=True,
-            )
+        with st.spinner("Replaying..."):
+            try:
+                _run_replay(cassette_path, target_url)
+            except Exception:
+                pass
         run_id, entries = _load_latest_run()
         replay_entry = _get_phase(entries, "replay")
         capture_entry = _get_phase(entries, "capture")
