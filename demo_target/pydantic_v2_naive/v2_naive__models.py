@@ -8,7 +8,7 @@ from decimal import Decimal
 from enum import Enum
 from typing import List, Optional
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, RootModel, field_serializer, field_validator
 
 
 # ── Control models (correctly migrated by bump-pydantic) ─────────────────────
@@ -50,22 +50,10 @@ class UserWithRole(BaseModel):
     name: str
     email: str
     role: Role
-    # MISSING: model_config = ConfigDict(use_enum_values=True)
-    # Without this, role serializes as {"value": "ADMIN"} not "ADMIN"
-
-    # TRAP 1 — the "fix" the migrating developer actually wrote:
-    # When the developer hit Pydantic v2's enum serialization, they thought
-    # the right answer was to override model_dump and emit the Enum as a
-    # rich object so "no information is lost." This is a real anti-pattern
-    # seen in v1→v2 migrations and a textbook case bump-pydantic cannot
-    # catch — it is a hand-written override added after the migration.
-    # Effect: role now serializes as {"name": "ADMIN", "value": "ADMIN"}
-    # instead of the plain string "ADMIN" that v1 produced.
-    def model_dump(self, **kwargs):
-        data = super().model_dump(**kwargs)
-        if isinstance(data.get("role"), Role):
-            data["role"] = {"name": self.role.name, "value": self.role.value}
-        return data
+    
+    # TRAP 1 FIX: Add use_enum_values to match v1 behavior
+    # This ensures role serializes as "ADMIN" string, not enum object
+    model_config = {"use_enum_values": True}
 
 
 # ── TRAP 2: Decimal field — BROKEN ───────────────────────────────────────────
@@ -76,7 +64,10 @@ class OrderCalculate(BaseModel):
     item_id: int
     quantity: int
     unit_price: Decimal
-    # MISSING: @field_serializer("unit_price") def serialize_decimal(...) -> float
+    
+    @field_serializer("unit_price")
+    def serialize_decimal(self, value: Decimal) -> float:
+        return float(value)
 
 
 class OrderResult(BaseModel):
@@ -85,17 +76,24 @@ class OrderResult(BaseModel):
     unit_price: Decimal
     total: Decimal
     currency: str = "USD"
-    # MISSING: @field_serializer("unit_price", "total") def serialize_decimal(...) -> float
+    
+    @field_serializer("unit_price", "total")
+    def serialize_decimals(self, value: Decimal) -> float:
+        return float(value)
 
 
 # ── TRAP 3: __root__ model — BROKEN ──────────────────────────────────────────
 # bump-pydantic removed __root__ but didn't convert to RootModel
 # Result: endpoint expects array body but model is now a plain BaseModel → 422 error
 
-class TagList(BaseModel):
-    # MISSING: should be RootModel[list[str]]
-    # bump-pydantic dropped __root__ → now this model has no fields → 422 on array input
-    items: List[str] = []
+class TagList(RootModel[List[str]]):
+    root: List[str]
+    
+    def __iter__(self):
+        return iter(self.root)
+    
+    def __getitem__(self, item):
+        return self.root[item]
 
 
 class TagsResponse(BaseModel):
@@ -112,21 +110,19 @@ class ReviewItem(BaseModel):
     product_id: int
     rating: int
     comment: str
-    # NOTE: per-item rating validator intentionally removed here —
-    # it was on BulkReviewRequest with each_item=True in v1, which v2 dropped
+    
+    @field_validator("rating")
+    @classmethod
+    def rating_must_be_valid(cls, v: int) -> int:
+        if not (1 <= v <= 5):
+            raise ValueError(f"rating must be between 1 and 5, got {v}")
+        return v
 
 
 class BulkReviewRequest(BaseModel):
     reviews: List[ReviewItem]
-
-    @field_validator("reviews")
-    @classmethod
-    def validate_reviews(cls, v):
-        # BROKEN: v1 used @validator("reviews", each_item=True) which validated
-        # each ReviewItem individually. In v2 each_item=True doesn't exist, so
-        # bump-pydantic converted this to a list-level validator that does nothing
-        # useful — individual rating bounds are never checked.
-        return v
+    # TRAP 4 FIX: Validator moved to ReviewItem.rating field
+    # Pydantic v2 validates each item automatically during list parsing
 
 
 class BulkReviewResponse(BaseModel):
@@ -142,3 +138,7 @@ class Order(BaseModel):
     user_id: int
     item: str
     amount: Decimal
+    
+    @field_serializer("amount")
+    def serialize_decimal(self, value: Decimal) -> float:
+        return float(value)

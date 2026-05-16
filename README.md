@@ -69,6 +69,28 @@ artifact, not a manual review burden.**
 
 ---
 
+## Screenshots
+
+### 1. Live Dashboard — Behavioral Diffs Detected
+
+![Streamlit Dashboard](docs/screenshots/dashboard-red-endpoints.png)
+
+*The Streamlit dashboard shows real-time equivalence tracking as Bob commits each migration step. Red endpoints indicate behavioral divergence — in this case, Enum serialization and Decimal encoding changed wire format between v1 and v2, caught before deployment.*
+
+### 2. Bob in Action — Custom Mode Active
+
+![Bob VS Code Panel](docs/screenshots/bob-modernize-mode.png)
+
+*Bob's VS Code panel with the `modernize-with-twin` Custom Mode active. The mode orchestrates the 4-phase pipeline (Capture → Migrate → Replay → Audit) and enforces behavioral equivalence checks via Checkpoints — if equivalence drops below 0.95, Bob auto-rolls back and regenerates with constraints.*
+
+### 3. Audit Report — Signed Evidence Package
+
+![PDF Audit Report](docs/screenshots/audit-report-cover.png)
+
+*The hash-chained PDF audit report with prominent equivalence score display. Each phase (capture, migrate, replay, drift) is linked via SHA-256 hashes to prevent tampering. The report format matches EU AI Act Article 12 evidence requirements (effective August 2, 2026) for AI-modified production code.*
+
+---
+
 ## The 4 MCP tools
 
 The `twin-mcp` server exposes 4 tools, callable from any MCP client (Bob,
