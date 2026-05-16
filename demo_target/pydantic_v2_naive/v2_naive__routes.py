@@ -100,12 +100,16 @@ def reset_state():
 
 # ── TRAP endpoints (broken after naive migration) ─────────────────────────────
 
-@router.get("/users/{user_id}", response_model=UserWithRole)
+@router.get("/users/{user_id}")
 def get_user(user_id: int):
-    """TRAP 1 — Pydantic v2 without use_enum_values serializes Role as object."""
+    """TRAP 1 — naive migration: developer dropped response_model and returns
+    user.model_dump() directly, expecting Pydantic v2 to produce JSON-ready
+    output. Combined with the custom model_dump override on UserWithRole,
+    role now leaks out as {"name":"ADMIN","value":"ADMIN"} instead of v1's
+    plain string "ADMIN"."""
     if user_id not in _users:
         raise HTTPException(status_code=404, detail="user not found")
-    return UserWithRole(**_users[user_id])
+    return UserWithRole(**_users[user_id]).model_dump()
 
 
 @router.post("/orders/calculate", response_model=OrderResult)

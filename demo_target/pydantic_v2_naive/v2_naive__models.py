@@ -53,6 +53,20 @@ class UserWithRole(BaseModel):
     # MISSING: model_config = ConfigDict(use_enum_values=True)
     # Without this, role serializes as {"value": "ADMIN"} not "ADMIN"
 
+    # TRAP 1 — the "fix" the migrating developer actually wrote:
+    # When the developer hit Pydantic v2's enum serialization, they thought
+    # the right answer was to override model_dump and emit the Enum as a
+    # rich object so "no information is lost." This is a real anti-pattern
+    # seen in v1→v2 migrations and a textbook case bump-pydantic cannot
+    # catch — it is a hand-written override added after the migration.
+    # Effect: role now serializes as {"name": "ADMIN", "value": "ADMIN"}
+    # instead of the plain string "ADMIN" that v1 produced.
+    def model_dump(self, **kwargs):
+        data = super().model_dump(**kwargs)
+        if isinstance(data.get("role"), Role):
+            data["role"] = {"name": self.role.name, "value": self.role.value}
+        return data
+
 
 # ── TRAP 2: Decimal field — BROKEN ───────────────────────────────────────────
 # bump-pydantic removed json_encoders (v1 only) but didn't add field_serializer
