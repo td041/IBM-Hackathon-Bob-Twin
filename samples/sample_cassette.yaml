@@ -25,7 +25,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:02:39 GMT
+      - Fri, 15 May 2026 11:15:44 GMT
       server:
       - uvicorn
     status:
@@ -55,7 +55,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:02:41 GMT
+      - Fri, 15 May 2026 11:15:44 GMT
       server:
       - uvicorn
     status:
@@ -85,7 +85,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:02:42 GMT
+      - Fri, 15 May 2026 11:15:44 GMT
       server:
       - uvicorn
     status:
@@ -115,7 +115,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:02:44 GMT
+      - Fri, 15 May 2026 11:15:44 GMT
       server:
       - uvicorn
     status:
@@ -145,7 +145,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:02:46 GMT
+      - Fri, 15 May 2026 11:15:44 GMT
       server:
       - uvicorn
     status:
@@ -175,7 +175,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:02:48 GMT
+      - Fri, 15 May 2026 11:15:44 GMT
       server:
       - uvicorn
     status:
@@ -205,7 +205,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:02:50 GMT
+      - Fri, 15 May 2026 11:15:44 GMT
       server:
       - uvicorn
     status:
@@ -239,7 +239,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:02:53 GMT
+      - Fri, 15 May 2026 11:15:44 GMT
       server:
       - uvicorn
     status:
@@ -273,7 +273,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:02:55 GMT
+      - Fri, 15 May 2026 11:15:44 GMT
       server:
       - uvicorn
     status:
@@ -307,7 +307,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:02:57 GMT
+      - Fri, 15 May 2026 11:15:44 GMT
       server:
       - uvicorn
     status:
@@ -341,7 +341,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:02:59 GMT
+      - Fri, 15 May 2026 11:15:44 GMT
       server:
       - uvicorn
     status:
@@ -375,7 +375,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:03:00 GMT
+      - Fri, 15 May 2026 11:15:44 GMT
       server:
       - uvicorn
     status:
@@ -409,7 +409,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:03:02 GMT
+      - Fri, 15 May 2026 11:15:44 GMT
       server:
       - uvicorn
     status:
@@ -439,7 +439,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:03:05 GMT
+      - Fri, 15 May 2026 11:15:44 GMT
       server:
       - uvicorn
     status:
@@ -469,7 +469,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:03:07 GMT
+      - Fri, 15 May 2026 11:15:44 GMT
       server:
       - uvicorn
     status:
@@ -499,7 +499,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:03:09 GMT
+      - Fri, 15 May 2026 11:15:44 GMT
       server:
       - uvicorn
     status:
@@ -533,7 +533,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:03:11 GMT
+      - Fri, 15 May 2026 11:15:44 GMT
       server:
       - uvicorn
     status:
@@ -567,7 +567,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:03:13 GMT
+      - Fri, 15 May 2026 11:15:44 GMT
       server:
       - uvicorn
     status:
@@ -601,7 +601,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:03:15 GMT
+      - Fri, 15 May 2026 11:15:44 GMT
       server:
       - uvicorn
     status:
@@ -631,7 +631,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:03:17 GMT
+      - Fri, 15 May 2026 11:15:44 GMT
       server:
       - uvicorn
     status:
@@ -661,7 +661,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:03:20 GMT
+      - Fri, 15 May 2026 11:15:44 GMT
       server:
       - uvicorn
     status:
@@ -691,7 +691,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:03:21 GMT
+      - Fri, 15 May 2026 11:15:44 GMT
       server:
       - uvicorn
     status:
@@ -721,7 +721,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:03:23 GMT
+      - Fri, 15 May 2026 11:15:44 GMT
       server:
       - uvicorn
     status:
@@ -751,7 +751,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:03:25 GMT
+      - Fri, 15 May 2026 11:15:44 GMT
       server:
       - uvicorn
     status:
@@ -781,7 +781,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:03:27 GMT
+      - Fri, 15 May 2026 11:15:44 GMT
       server:
       - uvicorn
     status:
@@ -815,7 +815,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:03:29 GMT
+      - Fri, 15 May 2026 11:15:44 GMT
       server:
       - uvicorn
     status:
@@ -849,7 +849,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:03:31 GMT
+      - Fri, 15 May 2026 11:15:44 GMT
       server:
       - uvicorn
     status:
@@ -883,7 +883,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:03:34 GMT
+      - Fri, 15 May 2026 11:15:44 GMT
       server:
       - uvicorn
     status:
@@ -917,7 +917,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:03:36 GMT
+      - Fri, 15 May 2026 11:15:44 GMT
       server:
       - uvicorn
     status:
@@ -951,7 +951,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:03:38 GMT
+      - Fri, 15 May 2026 11:15:44 GMT
       server:
       - uvicorn
     status:
@@ -985,7 +985,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:03:39 GMT
+      - Fri, 15 May 2026 11:15:44 GMT
       server:
       - uvicorn
     status:
@@ -1021,7 +1021,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:03:41 GMT
+      - Fri, 15 May 2026 11:15:44 GMT
       server:
       - uvicorn
     status:
@@ -1055,7 +1055,7 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:03:43 GMT
+      - Fri, 15 May 2026 11:15:44 GMT
       server:
       - uvicorn
     status:
@@ -1091,10 +1091,115 @@ interactions:
       content-type:
       - application/json
       date:
-      - Mon, 11 May 2026 13:03:46 GMT
+      - Fri, 15 May 2026 11:15:44 GMT
       server:
       - uvicorn
     status:
       code: 200
       message: OK
+- request:
+    body: '{"reviews":[{"product_id":1,"rating":99,"comment":"high out of range"}]}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '72'
+      Content-Type:
+      - application/json
+      Host:
+      - localhost:8001
+      User-Agent:
+      - python-httpx/0.28.1
+    method: POST
+    uri: http://localhost:8001/reviews/bulk
+  response:
+    body:
+      string: '{"detail":[{"loc":["body","reviews",0,"rating"],"msg":"rating must
+        be between 1 and 5, got 99","type":"value_error"}]}'
+    headers:
+      content-length:
+      - '118'
+      content-type:
+      - application/json
+      date:
+      - Fri, 15 May 2026 11:15:44 GMT
+      server:
+      - uvicorn
+    status:
+      code: 422
+      message: Unprocessable Entity
+- request:
+    body: '{"reviews":[{"product_id":2,"rating":-5,"comment":"negative rating"}]}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '70'
+      Content-Type:
+      - application/json
+      Host:
+      - localhost:8001
+      User-Agent:
+      - python-httpx/0.28.1
+    method: POST
+    uri: http://localhost:8001/reviews/bulk
+  response:
+    body:
+      string: '{"detail":[{"loc":["body","reviews",0,"rating"],"msg":"rating must
+        be between 1 and 5, got -5","type":"value_error"}]}'
+    headers:
+      content-length:
+      - '118'
+      content-type:
+      - application/json
+      date:
+      - Fri, 15 May 2026 11:15:44 GMT
+      server:
+      - uvicorn
+    status:
+      code: 422
+      message: Unprocessable Entity
+- request:
+    body: '{"reviews":[{"product_id":3,"rating":0,"comment":"zero rating"}]}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '65'
+      Content-Type:
+      - application/json
+      Host:
+      - localhost:8001
+      User-Agent:
+      - python-httpx/0.28.1
+    method: POST
+    uri: http://localhost:8001/reviews/bulk
+  response:
+    body:
+      string: '{"detail":[{"loc":["body","reviews",0,"rating"],"msg":"rating must
+        be between 1 and 5, got 0","type":"value_error"}]}'
+    headers:
+      content-length:
+      - '117'
+      content-type:
+      - application/json
+      date:
+      - Fri, 15 May 2026 11:15:44 GMT
+      server:
+      - uvicorn
+    status:
+      code: 422
+      message: Unprocessable Entity
 version: 1

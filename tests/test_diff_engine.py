@@ -67,9 +67,22 @@ def test_tolerance_rule_numeric_tolerance_exceeds_epsilon_fails():
 
 
 def test_tolerance_rule_enum_remap_admin():
-    rules = [{"path": "$.role", "kind": "enum_value_remap", "map": {"ADMIN": "ADMIN"}, "rationale": "enum compat"}]
-    result = compare({"role": "ADMIN"}, {"role": "ADMIN"}, "GET /users/1", rules)
+    """The map translates candidate-side enum values back to the baseline string.
+
+    Baseline (v1) returns "ADMIN". Candidate (v2) returns the legacy/renamed
+    value "ADMIN_OBJECT". Without the rule these would diff and fail; the rule
+    remaps "ADMIN_OBJECT" -> "ADMIN" on the actual side, producing equality.
+    """
+    rules = [{
+        "path": "$.role",
+        "kind": "enum_value_remap",
+        "map": {"ADMIN_OBJECT": "ADMIN"},
+        "rationale": "v2 emits renamed enum value; treat as equivalent to v1 ADMIN",
+    }]
+    result = compare({"role": "ADMIN"}, {"role": "ADMIN_OBJECT"}, "GET /users/1", rules)
     assert result["status"] == "pass"
+    # Prove the rule actually fired — not a coincidence of equal payloads.
+    assert len(result["matched_rules"]) == 1
 
 
 def test_no_rules_enum_object_diff_fails():

@@ -85,6 +85,23 @@ def run() -> None:
             ]
         })
 
+        # ── TRAP 4 edge cases — demonstrate systematic validator loss ─────
+        # v1's @validator("reviews", each_item=True) rejects each of these
+        # with a 422. v2_naive's @field_validator("reviews") is a silent
+        # no-op (each_item=True no longer exists in v2), so v2_naive accepts
+        # them all with 200. Three cases instead of one so the narrative is
+        # "your validation systematically disappeared" rather than "one
+        # edge case slipped through."
+        _post(c, "/reviews/bulk", {
+            "reviews": [{"product_id": 1, "rating": 99, "comment": "high out of range"}]
+        })
+        _post(c, "/reviews/bulk", {
+            "reviews": [{"product_id": 2, "rating": -5, "comment": "negative rating"}]
+        })
+        _post(c, "/reviews/bulk", {
+            "reviews": [{"product_id": 3, "rating": 0, "comment": "zero rating"}]
+        })
+
     print("Seed traffic complete.")
 
 
