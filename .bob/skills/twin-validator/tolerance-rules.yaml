@@ -26,32 +26,19 @@ rules:
     pattern: ".*"
     rationale: "API version string intentionally changes from v1 to v2; not a behavioral regression"
 
-# -----------------------------------------------------------------------------
-# Example rules (commented out — uncomment and adapt as needed during your run)
-# -----------------------------------------------------------------------------
+  - path: "$.detail[*].msg"
+    kind: regex_ignore
+    pattern: ".*"
+    rationale: "Pydantic v2 prepends 'Value error, ' to ValidationError messages; API contract is the status code (422), not the message text"
 
-# rules:
-#   - path: "$.created_at"
-#     kind: any_iso_datetime
-#     rationale: "Timestamps are runtime-generated; not affected by migration"
-#
-#   - path: "$.id"
-#     kind: any_uuid
-#     rationale: "Resource identity, not content; always non-deterministic"
-#
-#   - path: "$.tags"
-#     kind: ignore_order
-#     rationale: "Tag set is semantically unordered; v2 sorts deterministically while v1 used insertion order"
-#
-#   - path: "$.detail[*].msg"
-#     kind: regex_match
-#     pattern: "^.+$"
-#     rationale: "Error message text format changed in Pydantic v2; our API contract documents codes, not strings, so message text is informational"
-#
-#   - path: "$.user.role"
-#     kind: enum_value_remap
-#     map:
-#       "ADMIN": "admin"
-#       "USER": "user"
-#       "GUEST": "guest"
-#     rationale: "v2 default Enum serialization changed; we accept the lowercase form because downstream consumers were already case-insensitive"
+  - path: "$.detail[*].input"
+    kind: field_optional
+    rationale: "Pydantic v2 includes 'input' field in 422 detail; v1 did not — this is non-breaking extra info"
+
+  - path: "$.detail[*].ctx"
+    kind: field_optional
+    rationale: "Pydantic v2 includes 'ctx' field in 422 detail; v1 did not — this is non-breaking extra info"
+
+  - path: "$.detail[*].loc"
+    kind: field_optional
+    rationale: "Pydantic v2 reports loc at list level while v1 reports per-item path; validation behavior is identical, loc is informational"

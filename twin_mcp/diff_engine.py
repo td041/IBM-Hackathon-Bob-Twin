@@ -90,10 +90,20 @@ def _apply_tolerance_rule(rule: dict, expected: dict, actual: dict) -> tuple[dic
                 matched = True
 
     elif kind in ("field_optional", "schema_relaxed"):
-        # mark as matched; handled by exclude_paths in DeepDiff
+        key = path.split(".")[-1].strip("'\"")
+        a = _remove_key(a, key)
+        e = _remove_key(e, key)
         matched = True
 
     return e, a, matched
+
+
+def _remove_key(data, key: str):
+    if isinstance(data, dict):
+        return {k: _remove_key(v, key) for k, v in data.items() if k != key}
+    if isinstance(data, list):
+        return [_remove_key(item, key) for item in data]
+    return data
 
 
 def _replace_value(data, old_val, new_val):
