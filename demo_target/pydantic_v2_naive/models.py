@@ -93,16 +93,20 @@ class TagsResponse(BaseModel):
     count: int
 
 
-# ── TRAP 4: each_item validator — BROKEN ─────────────────────────────────────
-# bump-pydantic converted @validator → @field_validator but dropped each_item=True
-# Result: validator runs on the whole list, not each item → invalid ratings pass through
+# ── TRAP 4: each_item validator — FIXED ──────────────────────────────────────
+# Manually iterate through list items to validate each rating
 
 class ReviewItem(BaseModel):
     product_id: int
     rating: int
     comment: str
-    # NOTE: per-item rating validator intentionally removed here —
-    # it was on BulkReviewRequest with each_item=True in v1, which v2 dropped
+
+    @field_validator("rating")
+    @classmethod
+    def rating_must_be_valid(cls, v):
+        if not (1 <= v <= 5):
+            raise ValueError(f"rating must be between 1 and 5, got {v}")
+        return v
 
 
 class BulkReviewRequest(BaseModel):
@@ -111,10 +115,10 @@ class BulkReviewRequest(BaseModel):
     @field_validator("reviews")
     @classmethod
     def validate_reviews(cls, v):
-        # BROKEN: v1 used @validator("reviews", each_item=True) which validated
-        # each ReviewItem individually. In v2 each_item=True doesn't exist, so
-        # bump-pydantic converted this to a list-level validator that does nothing
-        # useful — individual rating bounds are never checked.
+        # Validate each review item's rating bounds
+        for review in v:
+            if review.rating < 1 or review.rating > 5:
+                raise ValueError(f"rating {review.rating} out of range")
         return v
 
 
