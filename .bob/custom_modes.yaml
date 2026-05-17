@@ -72,15 +72,28 @@ customModes:
          proceeding. This step also populates the v1 ground-truth column
          on the dashboard.
 
-      ### Phase 2 — Migrate
+      ### Phase 2 — Migrate (ONE fix per commit, replay between fixes)
 
       1. Read `.bob/skills/twin-validator/SKILL.md` and the migration's
          relevant watch-list section before editing.
-      2. Apply the migration in small, semantically-scoped commits. After
-         each commit, create a Checkpoint named `Checkpoint: <change-summary>`.
-      3. NEVER bulk-rewrite the entire codebase in one pass. The diff engine
-         needs commit-sized changes to localize regressions.
-      4. Use `command` tool to run the project's own test suite after each
+      2. **Strict per-fix loop.** For EACH distinct issue/trap identified
+         in the Phase 1 baseline replay, you MUST perform this exact
+         cycle before moving to the next issue:
+         a. Apply the fix for THIS issue only — do not touch any other
+            failing endpoint or unrelated code in the same edit.
+         b. `git commit` with a message naming the specific trap
+            (e.g. "Fix TRAP 1 — Enum serialization use_enum_values").
+         c. Create a Bob Checkpoint with the same name.
+         d. Call `twin-mcp.replay_and_diff` against the migrated app.
+         e. Compare new score to previous score:
+            - If score climbed → proceed to next issue.
+            - If score did not climb → rollback Checkpoint, regenerate
+              with stricter constraint, retry (max 3 attempts).
+      3. NEVER batch multiple traps into a single commit. The diff engine,
+         the dashboard, and the audit trail all depend on one fix per
+         Checkpoint for rollback granularity and visual progression.
+      4. NEVER bulk-rewrite the entire codebase in one pass.
+      5. Use `command` tool to run the project's own test suite after each
          commit; if existing tests fail, FIX before proceeding to Phase 3.
 
       ### Phase 3 — Replay
