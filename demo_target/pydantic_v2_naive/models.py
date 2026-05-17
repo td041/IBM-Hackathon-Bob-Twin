@@ -8,7 +8,7 @@ from decimal import Decimal
 from enum import Enum
 from typing import List, Optional
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator
 
 
 # ── Control models (correctly migrated by bump-pydantic) ─────────────────────
@@ -39,33 +39,19 @@ class UserSimple(BaseModel):
 # uses {"value":"ADMIN","name":"ADMIN"} when mode="python" is used via old FastAPI compat.
 # We simulate this with a plain IntEnum-style approach to force the object output.
 
-class Role(Enum):
+class Role(str, Enum):
     ADMIN = "ADMIN"
     USER = "USER"
     VIEWER = "VIEWER"
 
 
 class UserWithRole(BaseModel):
+    model_config = ConfigDict(use_enum_values=True)
+    
     id: int
     name: str
     email: str
     role: Role
-    # MISSING: model_config = ConfigDict(use_enum_values=True)
-    # Without this, role serializes as {"value": "ADMIN"} not "ADMIN"
-
-    # TRAP 1 — the "fix" the migrating developer actually wrote:
-    # When the developer hit Pydantic v2's enum serialization, they thought
-    # the right answer was to override model_dump and emit the Enum as a
-    # rich object so "no information is lost." This is a real anti-pattern
-    # seen in v1→v2 migrations and a textbook case bump-pydantic cannot
-    # catch — it is a hand-written override added after the migration.
-    # Effect: role now serializes as {"name": "ADMIN", "value": "ADMIN"}
-    # instead of the plain string "ADMIN" that v1 produced.
-    def model_dump(self, **kwargs):
-        data = super().model_dump(**kwargs)
-        if isinstance(data.get("role"), Role):
-            data["role"] = {"name": self.role.name, "value": self.role.value}
-        return data
 
 
 # ── TRAP 2: Decimal field — BROKEN ───────────────────────────────────────────
