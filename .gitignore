@@ -34,3 +34,6 @@ demo_traps.py
 
 # Note: audit_trail/ and golden_cassettes/ are intentionally NOT ignored
 # They contain demo evidence and sample data for the hackathon submission
+
+# Runtime capture job state
+audit_trail/_jobs/
