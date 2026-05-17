@@ -187,11 +187,6 @@ def _latest_cassette() -> str | None:
     return str(files[0]) if files else None
 
 
-def _run_replay(cassette_path: str, target_url: str) -> dict:
-    from twin_mcp.replay import replay_and_diff
-    return replay_and_diff(cassette_path, TARGET_DIR, target_url=target_url)
-
-
 def _load_latest_run() -> tuple[str | None, list[dict]]:
     if not AUDIT_DIR.exists():
         return None, []
@@ -215,6 +210,15 @@ def _get_phase(entries, phase):
     for e in reversed(entries):
         if e.get("phase") == phase:
             return e
+    return None
+
+
+def _get_replay_for_url(entries, url_fragment: str):
+    """Return the latest replay entry whose target_url contains url_fragment."""
+    for e in reversed(entries):
+        if e.get("phase") == "replay":
+            if url_fragment in e.get("payload", {}).get("target_url", ""):
+                return e
     return None
 
 
@@ -250,72 +254,19 @@ def _diff_summary(diff: dict) -> str:
     return keys[0] if keys else "diff"
 
 
-run_id, entries = _load_latest_run()
-replay_entry = _get_phase(entries, "replay")
-capture_entry = _get_phase(entries, "capture")
-
-# ── Top bar ──────────────────────────────────────────────────────────────────
-badge = f'<span class="run-badge">run: {run_id}</span>' if run_id else ""
-st.markdown(f"""
-<div class="topbar">
-  <div>
-    <div class="topbar-title">🧬 Bob's Twin</div>
-    <div class="topbar-sub"><span class="live-dot"></span>Migration Equivalence Monitor</div>
-  </div>
-  {badge}
-</div>
-""", unsafe_allow_html=True)
-
-# ── Replay control panel ─────────────────────────────────────────────────────
-cassette_path = _latest_cassette()
-if cassette_path:
-    tog_col, _ = st.columns([2, 5])
-    with tog_col:
-        use_v2 = st.toggle("v2 naive migration", value=False, key="target_toggle",
-                           help="OFF = v1 original (port 8001)  |  ON = v2 naive (port 8002)")
-    target_url = "http://localhost:8002" if use_v2 else "http://localhost:8001"
-
-    prev_key = "prev_toggle_state"
-    if st.session_state.get(prev_key) != use_v2:
-        st.session_state[prev_key] = use_v2
-        with st.spinner("Replaying..."):
-            try:
-                _run_replay(cassette_path, target_url)
-            except Exception:
-                pass
-        run_id, entries = _load_latest_run()
-        replay_entry = _get_phase(entries, "replay")
-        capture_entry = _get_phase(entries, "capture")
-
-# ── No data yet ───────────────────────────────────────────────────────────────
-if not run_id:
-    st.markdown("""
-    <div class="waiting-box">
-      <div class="big">🧬</div>
-      <p style="color:#e2e8f0;font-size:1.1rem;font-weight:600;">Waiting for migration run</p>
-      <p>Run <code>capture_baseline</code> to start</p>
-    </div>
-    """, unsafe_allow_html=True)
-    time.sleep(POLL_INTERVAL)
-    st.rerun()
-    st.stop()
-
-# ── Main layout ───────────────────────────────────────────────────────────────
-left, right = st.columns([1, 2], gap="large")
-
-# ── LEFT: Score + phases + hash ───────────────────────────────────────────────
-with left:
-    if replay_entry:
-        rp = replay_entry["payload"]
+def _render_score_card(label: str, entry, capture_entry):
+    if entry:
+        rp = entry["payload"]
         score = rp.get("equivalence_score", 0.0)
         passed = rp.get("passed", 0)
         failed = rp.get("failed", 0)
         total = rp.get("total", 0)
         color = _score_color(score)
-
+        score_str = f"{score:.3f}".rstrip('0').rstrip('.')
         st.markdown(f"""
         <div class="score-card">
-          <div class="score-number" style="color:{color}">{f"{score:.3f}".rstrip('0').rstrip('.')}</div>
+          <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:2px;color:#4a5568;margin-bottom:0.5rem">{label}</div>
+          <div class="score-number" style="color:{color}">{score_str}</div>
           <div class="score-label">Equivalence Score</div>
         </div>
         <div class="metric-row">
@@ -333,19 +284,120 @@ with left:
           </div>
         </div>
         """, unsafe_allow_html=True)
-
         st.progress(score)
-
     elif capture_entry:
         cp = capture_entry["payload"]
         n = cp.get("n_interactions", 0)
         st.markdown(f"""
         <div class="score-card">
+          <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:2px;color:#4a5568;margin-bottom:0.5rem">{label}</div>
           <div class="score-number" style="color:#4a9eff">{n}</div>
           <div class="score-label">Interactions Captured</div>
         </div>
         """, unsafe_allow_html=True)
+    else:
+        st.markdown(f"""
+        <div class="score-card">
+          <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:2px;color:#4a5568;margin-bottom:0.5rem">{label}</div>
+          <div class="score-number" style="color:#4a5568">—</div>
+          <div class="score-label">Awaiting replay</div>
+        </div>
+        """, unsafe_allow_html=True)
 
+
+def _render_endpoints(entry):
+    if not entry:
+        st.markdown("""
+        <div class="waiting-box" style="margin-top:1rem;padding:1.5rem">
+          <p>Awaiting <code>replay_and_diff</code>…</p>
+        </div>
+        """, unsafe_allow_html=True)
+        return
+    diffs = entry["payload"].get("diffs_per_endpoint", [])
+    if not diffs:
+        return
+    seen_eps: dict[str, dict] = {}
+    for d in diffs:
+        ep = d["endpoint"]
+        if ep not in seen_eps:
+            seen_eps[ep] = {"pass": 0, "fail": 0, "diff": d.get("diff", {})}
+        if d["status"] == "pass":
+            seen_eps[ep]["pass"] += 1
+        else:
+            seen_eps[ep]["fail"] += 1
+            seen_eps[ep]["diff"] = d.get("diff", {})
+
+    pass_eps = {k: v for k, v in seen_eps.items() if v["fail"] == 0}
+    fail_eps = {k: v for k, v in seen_eps.items() if v["fail"] > 0}
+
+    st.markdown(f'<div class="section-title">{len(fail_eps)} failing / {len(pass_eps)} passing</div>', unsafe_allow_html=True)
+
+    for ep, info in fail_eps.items():
+        summary = _diff_summary(info["diff"])
+        st.markdown(f"""
+        <div class="ep-fail">
+          <span style="color:#ef4444">✗</span>
+          <span class="ep-name">{ep}</span>
+          <span class="ep-diff">{summary}</span>
+        </div>""", unsafe_allow_html=True)
+
+    for ep, info in pass_eps.items():
+        st.markdown(f"""
+        <div class="ep-pass">
+          <span style="color:#22c55e">✓</span>
+          <span class="ep-name">{ep}</span>
+          <span style="font-size:0.72rem;color:#22c55e;margin-left:auto">{info['pass']}× ok</span>
+        </div>""", unsafe_allow_html=True)
+
+    if fail_eps:
+        with st.expander(f"Diff detail — {len(fail_eps)} endpoint(s)"):
+            for ep, info in fail_eps.items():
+                st.markdown(f"**`{ep}`**")
+                st.json(info["diff"])
+
+
+run_id, entries = _load_latest_run()
+capture_entry = _get_phase(entries, "capture")
+v1_entry = _get_replay_for_url(entries, "8001")
+v2_entry = _get_replay_for_url(entries, "8002")
+
+# ── Top bar ──────────────────────────────────────────────────────────────────
+badge = f'<span class="run-badge">run: {run_id}</span>' if run_id else ""
+st.markdown(f"""
+<div class="topbar">
+  <div>
+    <div class="topbar-title">🧬 Bob's Twin</div>
+    <div class="topbar-sub"><span class="live-dot"></span>Migration Equivalence Monitor</div>
+  </div>
+  {badge}
+</div>
+""", unsafe_allow_html=True)
+
+# ── No data yet ───────────────────────────────────────────────────────────────
+if not run_id:
+    st.markdown("""
+    <div class="waiting-box">
+      <div class="big">🧬</div>
+      <p style="color:#e2e8f0;font-size:1.1rem;font-weight:600;">Waiting for migration run</p>
+      <p>Run <code>capture_baseline</code> to start</p>
+    </div>
+    """, unsafe_allow_html=True)
+    time.sleep(POLL_INTERVAL)
+    st.rerun()
+    st.stop()
+
+# ── Main layout: v1 | v2 | timeline ──────────────────────────────────────────
+col_v1, col_v2, col_right = st.columns([2, 2, 1], gap="large")
+
+with col_v1:
+    _render_score_card("v1 Legacy — Ground Truth", v1_entry, capture_entry)
+    _render_endpoints(v1_entry)
+
+with col_v2:
+    _render_score_card("v2 Migrated — Under Test", v2_entry, capture_entry)
+    _render_endpoints(v2_entry)
+
+with col_right:
     # Phase timeline
     st.markdown('<div class="section-title">Phase Timeline</div>', unsafe_allow_html=True)
     phases_seen = {e["phase"]: e["timestamp"] for e in entries}
@@ -369,77 +421,22 @@ with left:
     # Hash chain
     if entries:
         st.markdown('<div class="section-title" style="margin-top:1.2rem">Audit Chain</div>', unsafe_allow_html=True)
-        last = entries[-1]
         chain_lines = "\n".join(
             f"#{e['entry_index']} {e['phase']:8s} {e['this_hash'][7:21]}…"
             for e in entries[-5:]
         )
         st.markdown(f'<div class="hash-box">{chain_lines}</div>', unsafe_allow_html=True)
 
-# ── RIGHT: Per-endpoint results ───────────────────────────────────────────────
-with right:
-    if replay_entry:
-        diffs = replay_entry["payload"].get("diffs_per_endpoint", [])
-        if diffs:
-            # Deduplicate by endpoint for summary view
-            seen_eps: dict[str, dict] = {}
-            for d in diffs:
-                ep = d["endpoint"]
-                if ep not in seen_eps:
-                    seen_eps[ep] = {"pass": 0, "fail": 0, "diff": d.get("diff", {})}
-                if d["status"] == "pass":
-                    seen_eps[ep]["pass"] += 1
-                else:
-                    seen_eps[ep]["fail"] += 1
-                    seen_eps[ep]["diff"] = d.get("diff", {})
-
-            pass_eps = {k: v for k, v in seen_eps.items() if v["fail"] == 0}
-            fail_eps = {k: v for k, v in seen_eps.items() if v["fail"] > 0}
-
-            st.markdown(f'<div class="section-title">Endpoints — {len(fail_eps)} failing / {len(pass_eps)} passing</div>', unsafe_allow_html=True)
-
-            # Failed first
-            for ep, info in fail_eps.items():
-                summary = _diff_summary(info["diff"])
-                st.markdown(f"""
-                <div class="ep-fail">
-                  <span style="color:#ef4444">✗</span>
-                  <span class="ep-name">{ep}</span>
-                  <span class="ep-diff">{summary}</span>
-                </div>""", unsafe_allow_html=True)
-
-            # Then passing
-            for ep, info in pass_eps.items():
-                calls = info["pass"]
-                st.markdown(f"""
-                <div class="ep-pass">
-                  <span style="color:#22c55e">✓</span>
-                  <span class="ep-name">{ep}</span>
-                  <span style="font-size:0.72rem;color:#22c55e;margin-left:auto">{calls}× ok</span>
-                </div>""", unsafe_allow_html=True)
-
-            # Expandable diff detail for failures
-            if fail_eps:
-                with st.expander(f"Diff detail — {len(fail_eps)} endpoint(s)"):
-                    for ep, info in fail_eps.items():
-                        st.markdown(f"**`{ep}`**")
-                        st.json(info["diff"])
-
-    elif capture_entry:
+    # Capture info
+    if capture_entry:
         cp = capture_entry["payload"]
-        st.markdown('<div class="section-title">Captured Endpoints</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-title" style="margin-top:1.2rem">Captured Endpoints</div>', unsafe_allow_html=True)
         for ep in cp.get("endpoints_covered", []):
             st.markdown(f"""
-            <div class="ep-pass">
+            <div class="ep-pass" style="font-size:0.72rem">
               <span style="color:#4a9eff">●</span>
               <span class="ep-name">{ep}</span>
             </div>""", unsafe_allow_html=True)
-    else:
-        st.markdown("""
-        <div class="waiting-box" style="margin-top:2rem">
-          <p>Awaiting <code>replay_and_diff</code>…</p>
-        </div>
-        """, unsafe_allow_html=True)
 
 time.sleep(POLL_INTERVAL)
 st.rerun()
