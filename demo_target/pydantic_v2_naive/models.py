@@ -8,7 +8,7 @@ from decimal import Decimal
 from enum import Enum
 from typing import List, Optional
 
-from pydantic import BaseModel, ConfigDict, field_serializer, field_validator
+from pydantic import BaseModel, ConfigDict, RootModel, field_serializer, field_validator
 
 
 # ── Control models (correctly migrated by bump-pydantic) ─────────────────────
@@ -80,14 +80,11 @@ class OrderResult(BaseModel):
         return float(value)
 
 
-# ── TRAP 3: __root__ model — BROKEN ──────────────────────────────────────────
-# bump-pydantic removed __root__ but didn't convert to RootModel
-# Result: endpoint expects array body but model is now a plain BaseModel → 422 error
+# ── TRAP 3: __root__ model — FIXED ────────────────────────────────────────────
+# Converted to RootModel to accept array body directly
 
-class TagList(BaseModel):
-    # MISSING: should be RootModel[list[str]]
-    # bump-pydantic dropped __root__ → now this model has no fields → 422 on array input
-    items: List[str] = []
+class TagList(RootModel[List[str]]):
+    root: List[str]
 
 
 class TagsResponse(BaseModel):

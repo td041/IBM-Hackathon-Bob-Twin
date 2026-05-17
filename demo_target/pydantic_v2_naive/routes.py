@@ -126,8 +126,8 @@ def calculate_order(body: OrderCalculate):
 
 @router.post("/products/tags", response_model=TagsResponse)
 def set_product_tags(product_id: int, body: TagList):
-    """TRAP 3 — TagList lost __root__, now expects {items:[...]} not [...] → 422."""
-    tags = body.items
+    """TRAP 3 — TagList now uses RootModel to accept array body directly."""
+    tags = list(body.root)
     _product_tags[product_id] = tags
     return TagsResponse(product_id=product_id, tags=tags, count=len(tags))
 
