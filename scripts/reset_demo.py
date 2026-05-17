@@ -7,6 +7,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
+# Commit where v2 naive was first added with all 4 traps unfixed.
+# Reset target files to THIS commit rather than HEAD, so reset works
+# regardless of how many fix commits Bob has made on top.
+BROKEN_COMMIT = "21cb919"
+
 FILES = [
     "demo_target/pydantic_v2_naive/models.py",
     "demo_target/pydantic_v2_naive/routes.py",
@@ -14,10 +19,10 @@ FILES = [
 
 
 def run() -> None:
-    print("Resetting v2 naive to broken state...")
+    print(f"Resetting v2 naive to broken state (commit {BROKEN_COMMIT})...")
     for f in FILES:
         result = subprocess.run(
-            ["git", "checkout", f],
+            ["git", "checkout", BROKEN_COMMIT, "--", f],
             capture_output=True, text=True, cwd=str(ROOT)
         )
         if result.returncode == 0:

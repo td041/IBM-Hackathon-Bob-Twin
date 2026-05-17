@@ -8,7 +8,7 @@ from decimal import Decimal
 from enum import Enum
 from typing import List, Optional
 
-from pydantic import BaseModel, ConfigDict, RootModel, field_serializer, field_validator
+from pydantic import BaseModel, field_validator
 
 
 # ── Control models (correctly migrated by bump-pydantic) ─────────────────────
@@ -39,19 +39,33 @@ class UserSimple(BaseModel):
 # uses {"value":"ADMIN","name":"ADMIN"} when mode="python" is used via old FastAPI compat.
 # We simulate this with a plain IntEnum-style approach to force the object output.
 
-class Role(str, Enum):
+class Role(Enum):
     ADMIN = "ADMIN"
     USER = "USER"
     VIEWER = "VIEWER"
 
 
 class UserWithRole(BaseModel):
-    model_config = ConfigDict(use_enum_values=True)
-    
     id: int
     name: str
     email: str
     role: Role
+    # MISSING: model_config = ConfigDict(use_enum_values=True)
+    # Without this, role serializes as {"value": "ADMIN"} not "ADMIN"
+
+    # TRAP 1 — the "fix" the migrating developer actually wrote:
+    # When the developer hit Pydantic v2's enum serialization, they thought
+    # the right answer was to override model_dump and emit the Enum as a
+    # rich object so "no information is lost." This is a real anti-pattern
+    # seen in v1→v2 migrations and a textbook case bump-pydantic cannot
+    # catch — it is a hand-written override added after the migration.
+    # Effect: role now serializes as {"name": "ADMIN", "value": "ADMIN"}
+    # instead of the plain string "ADMIN" that v1 produced.
+    def model_dump(self, **kwargs):
+        data = super().model_dump(**kwargs)
+        if isinstance(data.get("role"), Role):
+            data["role"] = {"name": self.role.name, "value": self.role.value}
+        return data
 
 
 # ── TRAP 2: Decimal field — BROKEN ───────────────────────────────────────────
@@ -62,10 +76,7 @@ class OrderCalculate(BaseModel):
     item_id: int
     quantity: int
     unit_price: Decimal
-
-    @field_serializer("unit_price")
-    def serialize_decimal(self, value: Decimal) -> float:
-        return float(value)
+    # MISSING: @field_serializer("unit_price") def serialize_decimal(...) -> float
 
 
 class OrderResult(BaseModel):
@@ -74,17 +85,17 @@ class OrderResult(BaseModel):
     unit_price: Decimal
     total: Decimal
     currency: str = "USD"
-
-    @field_serializer("unit_price", "total")
-    def serialize_decimals(self, value: Decimal) -> float:
-        return float(value)
+    # MISSING: @field_serializer("unit_price", "total") def serialize_decimal(...) -> float
 
 
-# ── TRAP 3: __root__ model — FIXED ────────────────────────────────────────────
-# Converted to RootModel to accept array body directly
+# ── TRAP 3: __root__ model — BROKEN ──────────────────────────────────────────
+# bump-pydantic removed __root__ but didn't convert to RootModel
+# Result: endpoint expects array body but model is now a plain BaseModel → 422 error
 
-class TagList(RootModel[List[str]]):
-    root: List[str]
+class TagList(BaseModel):
+    # MISSING: should be RootModel[list[str]]
+    # bump-pydantic dropped __root__ → now this model has no fields → 422 on array input
+    items: List[str] = []
 
 
 class TagsResponse(BaseModel):
@@ -93,20 +104,16 @@ class TagsResponse(BaseModel):
     count: int
 
 
-# ── TRAP 4: each_item validator — FIXED ──────────────────────────────────────
-# Manually iterate through list items to validate each rating
+# ── TRAP 4: each_item validator — BROKEN ─────────────────────────────────────
+# bump-pydantic converted @validator → @field_validator but dropped each_item=True
+# Result: validator runs on the whole list, not each item → invalid ratings pass through
 
 class ReviewItem(BaseModel):
     product_id: int
     rating: int
     comment: str
-
-    @field_validator("rating")
-    @classmethod
-    def rating_must_be_valid(cls, v):
-        if not (1 <= v <= 5):
-            raise ValueError(f"rating must be between 1 and 5, got {v}")
-        return v
+    # NOTE: per-item rating validator intentionally removed here —
+    # it was on BulkReviewRequest with each_item=True in v1, which v2 dropped
 
 
 class BulkReviewRequest(BaseModel):
@@ -115,10 +122,10 @@ class BulkReviewRequest(BaseModel):
     @field_validator("reviews")
     @classmethod
     def validate_reviews(cls, v):
-        # Validate each review item's rating bounds
-        for review in v:
-            if review.rating < 1 or review.rating > 5:
-                raise ValueError(f"rating {review.rating} out of range")
+        # BROKEN: v1 used @validator("reviews", each_item=True) which validated
+        # each ReviewItem individually. In v2 each_item=True doesn't exist, so
+        # bump-pydantic converted this to a list-level validator that does nothing
+        # useful — individual rating bounds are never checked.
         return v
 
 
@@ -135,7 +142,3 @@ class Order(BaseModel):
     user_id: int
     item: str
     amount: Decimal
-
-    @field_serializer("amount")
-    def serialize_amount(self, value: Decimal) -> float:
-        return float(value)
