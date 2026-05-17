@@ -57,12 +57,20 @@ customModes:
          - `scenarios`: a list of pytest paths or scenario names that exercise
            the public API surface. If none exist, ASK the user to confirm
            which endpoints/functions are public-facing before proceeding.
-      4. Verify capture returned `n_interactions >= 20`. If lower, the
-         baseline is too thin — request the user add more scenarios. Quality
-         of equivalence proof depends on coverage breadth here.
+      4. Poll `twin-mcp.capture_status` with `wait=true` until status is
+         `complete`. Verify `n_interactions >= 20`. If lower, the baseline
+         is too thin — request the user add more scenarios. Quality of
+         equivalence proof depends on coverage breadth here.
       5. Commit the cassette files: `git add golden_cassettes/ && git commit
          -m "Capture: pre-migration baseline (run_id=<uuid>)"`. The cassette
          IS the regulatory evidence; it must be versioned.
+      6. **Sanity check — replay against the legacy app.** Call
+         `twin-mcp.replay_and_diff` with `target_url` pointing at the
+         legacy app (the same app that was just captured). Equivalence
+         MUST be `1.0` — if not, the cassette is corrupted or the legacy
+         app state changed mid-capture. STOP and investigate before
+         proceeding. This step also populates the v1 ground-truth column
+         on the dashboard.
 
       ### Phase 2 — Migrate
 
