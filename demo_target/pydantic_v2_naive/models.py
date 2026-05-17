@@ -8,7 +8,7 @@ from decimal import Decimal
 from enum import Enum
 from typing import List, Optional
 
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, field_serializer, field_validator
 
 
 # ── Control models (correctly migrated by bump-pydantic) ─────────────────────
@@ -62,7 +62,10 @@ class OrderCalculate(BaseModel):
     item_id: int
     quantity: int
     unit_price: Decimal
-    # MISSING: @field_serializer("unit_price") def serialize_decimal(...) -> float
+
+    @field_serializer("unit_price")
+    def serialize_decimal(self, value: Decimal) -> float:
+        return float(value)
 
 
 class OrderResult(BaseModel):
@@ -71,7 +74,10 @@ class OrderResult(BaseModel):
     unit_price: Decimal
     total: Decimal
     currency: str = "USD"
-    # MISSING: @field_serializer("unit_price", "total") def serialize_decimal(...) -> float
+
+    @field_serializer("unit_price", "total")
+    def serialize_decimals(self, value: Decimal) -> float:
+        return float(value)
 
 
 # ── TRAP 3: __root__ model — BROKEN ──────────────────────────────────────────
@@ -128,3 +134,7 @@ class Order(BaseModel):
     user_id: int
     item: str
     amount: Decimal
+
+    @field_serializer("amount")
+    def serialize_amount(self, value: Decimal) -> float:
+        return float(value)
