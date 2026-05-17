@@ -71,6 +71,13 @@ customModes:
          app state changed mid-capture. STOP and investigate before
          proceeding. This step also populates the v1 ground-truth column
          on the dashboard.
+      7. **Baseline replay against the migrated app.** Call
+         `twin-mcp.replay_and_diff` with `target_url` pointing at the
+         migrated app. Record the initial equivalence score (expected
+         well below 0.95) — this is the starting point that Phase 2
+         fixes must improve. This populates the v2 column on the
+         dashboard so the audience sees the broken baseline before any
+         fix is applied.
 
       ### Phase 2 — Migrate (ONE fix per commit, replay between fixes)
 

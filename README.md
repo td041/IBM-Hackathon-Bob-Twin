@@ -114,7 +114,7 @@ output to the next. Skipping or reordering breaks integrity verification.
 
 - Python 3.11 or 3.12
 - Git
-- IBM Bob (free trial: <https://bob.ibm.com/trial>)
+- IBM Bob (free trial: <https://bob.ibm.com/trial>) — required for Workflow 2
 
 ### Install & run (Windows)
 
@@ -129,22 +129,93 @@ setup.bat
 python demo_run.py
 ```
 
-`demo_run.py` automatically:
-1. Starts v1 app (port 8001), v2 naive app (port 8002), and dashboard (port 8501)
-2. Seeds traffic into the v1 app (skips if already seeded)
-3. Captures a golden cassette via VCR.py
-4. Replays against v1 → expect score **1.0**
-5. Replays against v2 naive → expect score **~0.595** (4 traps detected)
-6. Generates a PDF audit report
-7. Opens the dashboard automatically in your browser
+---
 
-**Dashboard features:**
+## Two ways to demo
 
-- Real-time equivalence score with color-coded status
-- Per-endpoint pass/fail indicators with diff detail
-- Phase timeline (capture → migrate → replay → audit)
-- Hash chain integrity visualization
-- Toggle to compare v1 vs v2 app responses
+### Workflow 1 — One-Shot Demo (`python demo_run.py`)
+
+Fastest end-to-end run. Use for rehearsal, environment check, CI smoke test,
+or to show the broken state before Workflow 2.
+
+1. Starts v1 app (`:8001`), v2 naive (`:8002`), Streamlit dashboard (`:8501`)
+2. Seeds 37 HTTP interactions into v1
+3. Captures golden cassette via VCR.py
+4. Replays vs v1 → score **1.0** (ground truth)
+5. Replays vs v2 naive → score **~0.595** (4 traps detected)
+6. Generates PDF audit report
+7. Opens dashboard automatically
+
+---
+
+### Workflow 2 — Bob Orchestration (Recommended for live demo)
+
+Bob AI runs the entire pipeline autonomously, guided by the
+`modernize-with-twin` Custom Mode. Audience sees Bob reason, fix, replay,
+and self-correct in real time on the dashboard.
+
+#### Setup
+
+```powershell
+.venv\Scripts\python demo_run.py     # start v1, v2, dashboard
+make reset-demo                      # v2 → broken; clear cassettes + audit trail
+```
+
+Open Bob IDE → mode picker → **🔮 Modernize with Twin** → verify `twin-mcp`
+shows **Connected**.
+
+#### The prompt (paste once)
+
+```
+Migrate this codebase from Pydantic v1 to v2.
+
+- v1: http://localhost:8001
+- v2: http://localhost:8002
+- Scenario: scripts/seed_demo_traffic.py
+
+Follow the modernize-with-twin Custom Mode.
+```
+
+#### What Bob does autonomously (live, on the dashboard)
+
+| Phase | Bob action | Dashboard state |
+|-------|-----------|----------------|
+| 1.1 | Git clean check + pre-migration Checkpoint | — |
+| 1.2 | `capture_baseline` + `capture_status` (async polling) | "37 interactions captured" |
+| 1.3 | Commit cassette to `golden_cassettes/` | — |
+| 1.4 | Replay vs v1 (mandatory sanity check) | **v1 column → 1.0 (green)** |
+| 1.5 | Baseline replay vs v2 | **v2 column → 0.595 (red)** |
+| 2 | Fix TRAP 1 (Enum) → Checkpoint → replay | v2 climbs to ~0.676 |
+| 2 | Fix TRAP 2 (Decimal) → Checkpoint → replay | v2 climbs to ~0.757 |
+| 2 | Fix TRAP 3 (`__root__`) → Checkpoint → replay | v2 climbs to ~0.892 |
+| 2 | Fix TRAP 4 (validator) → Checkpoint → replay | v2 climbs to **1.0** |
+| 3 | If diff is intentional → propose tolerance rule with `rationale` | rules count +1 |
+| 4 | `compute_drift_metrics` + verify hash chain | timeline: DRIFT ✓ |
+| 4 | `generate_audit_report` (PDF) | timeline: REPORT ✓ |
+
+**Self-correction loop:** if a fix doesn't move the score, Bob auto-rolls
+back the Checkpoint and regenerates with a stricter constraint
+(`"preserve serialization shape of <field>"`). No human "try again" needed.
+
+**Tip:** Project the dashboard fullscreen on a second monitor — audience
+sees v1 stay green at 1.0 while v2 climbs from red to green, fix by fix.
+
+See [DEMO_BOB_PROMPTS.md](DEMO_BOB_PROMPTS.md) for talking points and
+backup prompts if Bob gets stuck.
+
+---
+
+## Dashboard
+
+Live Streamlit dashboard at `http://localhost:8501` shows **v1 vs v2
+side-by-side** — no manual toggle, both apps replayed automatically:
+
+- **Left column — v1 Legacy (Ground Truth):** stays green at 1.0
+- **Middle column — v2 Migrated (Under Test):** transitions red → green
+  as Bob fixes each trap during Workflow 2
+- **Right column:** phase timeline, audit chain SHA-256 links, captured
+  endpoints list
+- **Auto-refresh every 2 seconds** — endpoints turn red → green live
 
 ---
 
