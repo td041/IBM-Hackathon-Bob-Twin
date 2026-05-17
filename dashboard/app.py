@@ -298,6 +298,7 @@ if not run_id:
     """, unsafe_allow_html=True)
     time.sleep(POLL_INTERVAL)
     st.rerun()
+    st.stop()
 
 # ── Main layout ───────────────────────────────────────────────────────────────
 left, right = st.columns([1, 2], gap="large")

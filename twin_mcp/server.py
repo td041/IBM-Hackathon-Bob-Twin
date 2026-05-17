@@ -1,4 +1,4 @@
-"""FastMCP entry point — registers the 4 Bob's Twin tools."""
+"""FastMCP entry point — registers the 6 Bob's Twin tools."""
 
 from fastmcp import FastMCP
 
@@ -8,18 +8,66 @@ mcp = FastMCP("twin-mcp")
 
 
 @mcp.tool()
+def reset_apps(
+    v1_url: str = "http://localhost:8001",
+    v2_url: str = "http://localhost:8002",
+) -> dict:
+    """Reset both v1 and v2 apps to clean initial state before capture.
+
+    Args:
+        v1_url: Base URL of the v1 legacy app.
+        v2_url: Base URL of the v2 migrated app.
+
+    Returns:
+        ok, v1_reset, v2_reset, message.
+    """
+    import requests as _requests
+
+    results = {}
+    for label, url in [("v1", v1_url), ("v2", v2_url)]:
+        try:
+            r = _requests.post(f"{url}/admin/reset", timeout=10)
+            results[f"{label}_reset"] = r.status_code in (200, 204)
+        except Exception as exc:
+            results[f"{label}_reset"] = False
+            results[f"{label}_error"] = str(exc)
+
+    ok = results.get("v1_reset", False) and results.get("v2_reset", False)
+    return {"ok": ok, "message": "both apps reset" if ok else "one or more resets failed", **results}
+
+
+@mcp.tool()
 def capture_baseline(target_dir: str, scenarios: list[str]) -> dict:
-    """Capture HTTP baseline interactions from scenario scripts into a cassette.
+    """Start capturing HTTP baseline interactions in the background. Returns immediately.
 
     Args:
         target_dir: Absolute path to the project root.
         scenarios: List of Python script paths that make HTTP calls to localhost.
 
     Returns:
-        ok, run_id, cassette_path, n_interactions, endpoints_covered, captured_at, errors.
+        ok, run_id, cassette_path, status="started", estimated_seconds, next_step.
+        Call capture_status(run_id, wait=true) to poll until complete.
     """
     try:
         return capture.capture_baseline(target_dir, scenarios)
+    except Exception as exc:
+        return {"ok": False, "errors": [str(exc)]}
+
+
+@mcp.tool()
+def capture_status(run_id: str, wait: bool = True) -> dict:
+    """Poll the status of a background capture job.
+
+    Args:
+        run_id: The run_id returned by capture_baseline.
+        wait: If True, blocks until complete (polls every 2s, max 120s).
+
+    Returns:
+        status (pending/complete/error), and when complete: n_interactions,
+        endpoints_covered, cassette_path.
+    """
+    try:
+        return capture.capture_status(run_id, wait)
     except Exception as exc:
         return {"ok": False, "errors": [str(exc)]}
 

@@ -2,8 +2,11 @@
 
 import hashlib
 import importlib.util
+import json
 import os
+import subprocess
 import sys
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlparse
@@ -11,6 +14,46 @@ from urllib.parse import urlparse
 import yaml
 
 from twin_mcp import audit
+
+_JOBS_DIR = Path(os.environ.get("TWIN_AUDIT_DIR", "audit_trail")) / "_jobs"
+
+
+def _job_path(run_id: str) -> Path:
+    _JOBS_DIR.mkdir(parents=True, exist_ok=True)
+    return _JOBS_DIR / f"{run_id}.json"
+
+
+def _write_job(run_id: str, status: str, payload: dict) -> None:
+    _job_path(run_id).write_text(
+        json.dumps({"run_id": run_id, "status": status, **payload}),
+        encoding="utf-8",
+    )
+
+
+def capture_status(run_id: str, wait: bool = True) -> dict:
+    """Poll the status of a background capture job.
+
+    Args:
+        run_id: The run_id returned by capture_baseline.
+        wait: If True, blocks until complete (polls every 2s, max 120s).
+
+    Returns:
+        Dict with status (pending/complete/error) and capture results when done.
+    """
+    import time
+
+    deadline = time.time() + 120
+    while True:
+        p = _job_path(run_id)
+        if p.exists():
+            data = json.loads(p.read_text(encoding="utf-8"))
+            if data["status"] in ("complete", "error") or not wait:
+                return data
+        elif not wait:
+            return {"run_id": run_id, "status": "pending"}
+        if time.time() > deadline:
+            return {"run_id": run_id, "status": "timeout", "ok": False}
+        time.sleep(2)
 
 _CASSETTE_DIR = Path(os.environ.get("TWIN_CASSETTE_DIR", "golden_cassettes"))
 
@@ -95,25 +138,11 @@ def _list_endpoints(cassette_path: Path) -> list[str]:
     return seen
 
 
-def capture_baseline(target_dir: str, scenarios: list[str]) -> dict:
-    """Capture HTTP interactions from scenario scripts into a VCR.py cassette.
-
-    Args:
-        target_dir: Absolute path to the project root.
-        scenarios: List of Python script paths that make HTTP calls to localhost.
-
-    Returns:
-        Dict with ok, run_id, cassette_path, n_interactions, endpoints_covered,
-        captured_at, and errors.
-    """
-    import uuid
-
-    run_id = uuid.uuid4().hex[:8]
+def _capture_sync(run_id: str, target_dir: str, scenarios: list[str]) -> None:
+    """Run the actual capture synchronously — called in subprocess."""
     cassette_path = _cassette_path(run_id)
-    captured_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     errors: list[str] = []
 
-    # Add target_dir to sys.path so scenario imports work
     target = str(Path(target_dir).resolve())
     if target not in sys.path:
         sys.path.insert(0, target)
@@ -127,10 +156,12 @@ def capture_baseline(target_dir: str, scenarios: list[str]) -> dict:
     n_interactions = _count_interactions(cassette_path)
 
     if n_interactions == 0:
-        return {"ok": False, "errors": errors or ["no HTTP interactions captured"]}
+        _write_job(run_id, "error", {"ok": False, "errors": errors or ["no HTTP interactions captured"]})
+        return
 
     cassette_hash = _sha256_file(cassette_path)
     endpoints = _list_endpoints(cassette_path)
+    captured_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     audit.append(run_id, "capture", {
         "cassette_path": str(cassette_path),
@@ -140,12 +171,51 @@ def capture_baseline(target_dir: str, scenarios: list[str]) -> dict:
         "scenarios": scenarios,
     })
 
-    return {
+    _write_job(run_id, "complete", {
         "ok": True,
-        "run_id": run_id,
         "cassette_path": str(cassette_path),
         "n_interactions": n_interactions,
         "endpoints_covered": endpoints,
         "captured_at": captured_at,
         "errors": errors,
+    })
+
+
+def capture_baseline(target_dir: str, scenarios: list[str]) -> dict:
+    """Start capturing HTTP interactions in the background. Returns immediately.
+
+    Args:
+        target_dir: Absolute path to the project root.
+        scenarios: List of Python script paths that make HTTP calls to localhost.
+
+    Returns:
+        Dict with ok, run_id, cassette_path, status="started", next_step.
+        Call capture_status(run_id) to poll until complete.
+    """
+    run_id = uuid.uuid4().hex[:8]
+    cassette_path = _cassette_path(run_id)
+
+    _write_job(run_id, "pending", {"ok": True, "cassette_path": str(cassette_path)})
+
+    script = f"""
+import sys
+sys.path.insert(0, {repr(str(Path(target_dir).resolve()))})
+from twin_mcp.capture import _capture_sync
+_capture_sync({repr(run_id)}, {repr(target_dir)}, {repr(scenarios)})
+"""
+    python = sys.executable
+    subprocess.Popen(
+        [python, "-c", script],
+        cwd=str(Path(target_dir).resolve()),
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+
+    return {
+        "ok": True,
+        "run_id": run_id,
+        "cassette_path": str(cassette_path),
+        "status": "started",
+        "estimated_seconds": 30,
+        "next_step": f"Call capture_status with run_id='{run_id}' and wait=true",
     }
